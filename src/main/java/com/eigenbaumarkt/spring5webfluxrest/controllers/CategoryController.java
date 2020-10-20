@@ -2,6 +2,7 @@ package com.eigenbaumarkt.spring5webfluxrest.controllers;
 
 import com.eigenbaumarkt.spring5webfluxrest.domain.Category;
 import com.eigenbaumarkt.spring5webfluxrest.repositories.CategoryRepository;
+import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -19,17 +20,22 @@ public class CategoryController {
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     Flux<Category> listAllCategories() {
         return categoryRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     Mono<Category> listCategoryById(@PathVariable String id) {
         return categoryRepository.findById(id);
     }
 
+    // create-Method doesn't return a Body, but a Http status
+    // also any reactive type (Mono or Flux) can be passed in
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    Mono<Void> createCategory(@RequestBody Publisher<Category> categoryStream) {
+        return categoryRepository.saveAll(categoryStream).then();
+    }
 
 
 }

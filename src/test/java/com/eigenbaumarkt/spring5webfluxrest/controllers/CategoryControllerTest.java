@@ -6,9 +6,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
+import org.reactivestreams.Publisher;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static org.mockito.ArgumentMatchers.any;
+
 
 class CategoryControllerTest {
 
@@ -24,7 +28,7 @@ class CategoryControllerTest {
     }
 
     @Test
-    void listAllCategories() {
+    void testListAllCategories() {
         // Behaviour-Driven Mockito
         BDDMockito.given(categoryRepository.findAll())
                 .willReturn(Flux.just(Category.builder().description("Test-Category 1").build(),
@@ -38,7 +42,7 @@ class CategoryControllerTest {
     }
 
     @Test
-    void listCategoryById() {
+    void testListCategoryById() {
         BDDMockito.given(categoryRepository.findById("someId"))
                 .willReturn(Mono.just(Category.builder().description("Test-Category").build()));
 
@@ -46,5 +50,22 @@ class CategoryControllerTest {
                 .uri(CategoryController.BASE_URL + "/someId")
                 .exchange()
                 .expectBody(Category.class);
+    }
+
+    @Test
+    void testCreateNewCategory() {
+        BDDMockito.given(categoryRepository.saveAll(any(Publisher.class)))
+                .willReturn(Flux.just(Category.builder().build()));
+
+        Mono<Category> categoryMonoToSave = Mono.just(Category.builder()
+                .description("A new category is born every minute").build());
+
+        webTestClient.post()
+                .uri(CategoryController.BASE_URL)
+                .body(categoryMonoToSave, Category.class)
+                .exchange()
+                .expectStatus()
+                .isCreated();
+
     }
 }

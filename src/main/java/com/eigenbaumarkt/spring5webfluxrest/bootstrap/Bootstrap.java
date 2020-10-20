@@ -25,45 +25,36 @@ public class Bootstrap implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         if (categoryRepository.count().block() == 0) {
-            loadCategories();
+            categoryRepository.save(Category
+                    .builder()
+                    .description("čudovište") // monster
+                    .build())
+                    .block();
+            categoryRepository.save(Category
+                    .builder()
+                    .description("životinja") // animal
+                    .build())
+                    .block();
+
+            log.info("Data inject: " + categoryRepository.count().block() + " categories saved.");
         }
 
         if (vendorRepository.count().block() == 0) {
-            loadVendors();
+            vendorRepository.save(Vendor
+                    .builder()
+                    .firstName("Prvi")
+                    .lastName("Prodavač")
+                    .build())
+                    .block();
+            vendorRepository.save(Vendor
+                    .builder()
+                    .firstName("Drugi")
+                    .lastName("Prodavač")
+                    .build())
+                    .block();
+
+            log.info("Data inject: " + vendorRepository.count().block() + " vendors saved.");
         }
 
     }
-
-    private void loadCategories() {
-
-        Category monster = new Category();
-        monster.setDescription("čudovište");
-
-        Category animal = new Category();
-        animal.setDescription("životinja");
-
-        categoryRepository.save(monster).block();
-        categoryRepository.save(animal).block();
-
-        log.info("Data inject: " + categoryRepository.count().block() + " categories saved.");
-
-    }
-
-    private void loadVendors() {
-
-        Vendor vendor1 = new Vendor();
-        vendor1.setFirstName("Prvi");
-        vendor1.setLastName("Prodavač");
-
-        Vendor vendor2 = new Vendor();
-        vendor2.setFirstName("Drugi");
-        vendor2.setLastName("Prodavač");
-
-        vendorRepository.save(vendor1).block();
-        vendorRepository.save(vendor2).block();
-
-        log.info("Data inject: " + vendorRepository.count().block() + " vendors saved.");
-
-    }
-
 }

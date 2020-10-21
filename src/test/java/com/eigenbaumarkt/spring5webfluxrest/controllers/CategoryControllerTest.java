@@ -68,4 +68,28 @@ class CategoryControllerTest {
                 .isCreated();
 
     }
+
+    @Test
+    void testUpdateCategory() {
+
+        // setting up the Mockito Mock to take in any Category-Object
+        // and return back a Mono of an empty Category-Object
+        BDDMockito.given(categoryRepository.save(any(Category.class)))
+                .willReturn(Mono.just(Category.builder().build()));
+
+        // setting up an Test-Object which will be passed in
+        Mono<Category> categoryMonoToUpdate = Mono.just(Category.builder()
+                .description("An updated category").build());
+
+        // testing the Mockito Mock with the Test-Object parsed into json through the WebTestClient
+        // and checking the return of the Controller-Method
+        webTestClient.put()
+                .uri(CategoryController.BASE_URL + "/someId")
+                .body(categoryMonoToUpdate, Category.class)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+    }
+
 }

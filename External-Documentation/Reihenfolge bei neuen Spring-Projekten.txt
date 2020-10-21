@@ -1,0 +1,12 @@
+Neues Projekt:
+1. Spring Initializr gewünschte Module aussuchen, Rohkonstrukt erstellen lassen
+2. Domain-Klassen anlegen (Lombok - @Data; Spring MongoDB - @Document | Spring JPA - @Entity; private properties, @Id bei String 'id' | @Id, @GeneratedValue bei Long 'id')
+3. Repository-Interfaces anlegen ( ... extends ReactiveMongoRepository | extends JpaRepository | ... )
+4. Bootstrap-Klasse anlegen ( Spring - @Component, Lombok - @Slf4j ... implements CommandLineRunner )
+5. Controller-Klassen anlegen ( Spring MVC - @RestController; Dependency-Injection of private final Repository via Constructor in Controller Bean; Erster Test mit z.B. "curl -X GET --header 'Accept: application/json' 'http://localhost:8080/api/v1/categories'"
+6. Controller-Unit-Tests anlegen ( Mocks, Controller-Objekt initialisieren, WebTestClient an Controller binden - d.h. die DJ des Spring frameworks wird manuell nachgebildet soweit benötigt )
+
+Bem.:
+- je nachdem, ob Service-Interfaces, deren Implementierung, DTO und Mapper eingebunden werden, muss die Reihenfolge erweitert werden ( siehe: https://github.com/Mesqualito/Spring5MVCRestApplication/commit/3d3d49b6074a73462fdd8cdbb12a2b939782481f )
+- die Unit-Tests (und ggf. Integration-Tests) werden bei Test-Driven-Development zuerst geschrieben und darauf die Implementierungen vorgenommen, die die Tests erfüllen
+

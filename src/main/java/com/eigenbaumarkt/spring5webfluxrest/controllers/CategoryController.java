@@ -29,12 +29,19 @@ public class CategoryController {
         return categoryRepository.findById(id);
     }
 
-    // create-Method doesn't return a Body, but a Http status
+    // create-Method doesn't return a Body, but a Http status (201)
     // also any reactive type (Mono or Flux) can be passed in
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     Mono<Void> createCategory(@RequestBody Publisher<Category> categoryStream) {
         return categoryRepository.saveAll(categoryStream).then();
+    }
+
+    @PutMapping("/{id}")
+    // @ResponseStatus(HttpStatus.OK) -- default !
+    Mono<Category> updateCategory(@PathVariable String id, @RequestBody Category category) {
+        category.setId(id);
+        return categoryRepository.save(category);
     }
 
 

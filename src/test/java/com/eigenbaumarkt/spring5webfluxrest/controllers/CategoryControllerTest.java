@@ -98,13 +98,15 @@ class CategoryControllerTest {
     @Test
     void testPatchCategoryWithChanges() {
 
+        final String wrongString = "This is no good description!";
+
         // to prevent a NPE with 'Category foundCategory = categoryRepository.findById(id).block();'
         // in the PATCH-method 'patchCategory(...)' in the CategoryController, we have to serve a Mock:
         given(categoryRepository.findById(anyString()))
-                .willReturn(Mono.just(Category.builder().build()));
+                .willReturn(Mono.just(Category.builder().description(wrongString).build()));
 
         given(categoryRepository.save(any(Category.class)))
-                .willReturn(Mono.just(Category.builder().description("Not really a description!").build()));
+                .willReturn(Mono.just(Category.builder().build()));
 
         // we do change the description in the WebTestClient, here is our patch:
         Mono<Category> categoryMonoToPatch = Mono.just(Category.builder()
@@ -125,7 +127,7 @@ class CategoryControllerTest {
     @Test
     void testPatchCategoryNoChanges() {
 
-        final String testString = "This will stay the same like the id!";
+        final String testString = "The description will stay the same like the id!";
 
         // to prevent a NPE with 'Category foundCategory = categoryRepository.findById(id).block();'
         // in the PATCH-method 'patchCategory(...)' in the CategoryController, we have to serve a Mock:

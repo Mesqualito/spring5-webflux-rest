@@ -4,7 +4,6 @@ import com.eigenbaumarkt.spring5webfluxrest.domain.Category;
 import com.eigenbaumarkt.spring5webfluxrest.repositories.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.reactivestreams.Publisher;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -12,6 +11,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 
 class CategoryControllerTest {
@@ -30,7 +33,7 @@ class CategoryControllerTest {
     @Test
     void testListAllCategories() {
         // Behaviour-Driven Mockito
-        BDDMockito.given(categoryRepository.findAll())
+        given(categoryRepository.findAll())
                 .willReturn(Flux.just(Category.builder().description("Test-Category 1").build(),
                         Category.builder().description("Test-Category 2").build()));
 
@@ -43,7 +46,7 @@ class CategoryControllerTest {
 
     @Test
     void testListCategoryById() {
-        BDDMockito.given(categoryRepository.findById("someId"))
+        given(categoryRepository.findById("someId"))
                 .willReturn(Mono.just(Category.builder().description("Test-Category").build()));
 
         webTestClient.get()
@@ -54,7 +57,7 @@ class CategoryControllerTest {
 
     @Test
     void testCreateNewCategory() {
-        BDDMockito.given(categoryRepository.saveAll(any(Publisher.class)))
+        given(categoryRepository.saveAll(any(Publisher.class)))
                 .willReturn(Flux.just(Category.builder().build()));
 
         Mono<Category> categoryMonoToSave = Mono.just(Category.builder()
@@ -74,7 +77,7 @@ class CategoryControllerTest {
 
         // setting up the Mockito Mock to take in any Category-Object
         // and return back a Mono of an empty Category-Object
-        BDDMockito.given(categoryRepository.save(any(Category.class)))
+        given(categoryRepository.save(any(Category.class)))
                 .willReturn(Mono.just(Category.builder().build()));
 
         // setting up an Test-Object which will be passed in
@@ -89,6 +92,67 @@ class CategoryControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk();
+
+    }
+
+    @Test
+    void testPatchCategoryWithChanges() {
+
+        // to prevent a NPE with 'Category foundCategory = categoryRepository.findById(id).block();'
+        // in the PATCH-method 'patchCategory(...)' in the CategoryController, we have to serve a Mock:
+        given(categoryRepository.findById(anyString()))
+                .willReturn(Mono.just(Category.builder().build()));
+
+        given(categoryRepository.save(any(Category.class)))
+                .willReturn(Mono.just(Category.builder().description("Not really a description!").build()));
+
+        // we do change the description in the WebTestClient, here is our patch:
+        Mono<Category> categoryMonoToPatch = Mono.just(Category.builder()
+        .description("A category patch").build());
+
+        webTestClient.patch()
+                .uri(CategoryController.BASE_URL + "/someId")
+                .body(categoryMonoToPatch, Category.class)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        // verify that the save-method has been run at least once:
+        verify(categoryRepository).save(any());
+
+    }
+
+    @Test
+    void testPatchCategoryNoChanges() {
+
+        final String testString = "This will stay the same like the id!";
+
+        // to prevent a NPE with 'Category foundCategory = categoryRepository.findById(id).block();'
+        // in the PATCH-method 'patchCategory(...)' in the CategoryController, we have to serve a Mock:
+        given(categoryRepository.findById(anyString()))
+                .willReturn(Mono.just(Category.builder().description(testString).build()));
+
+        given(categoryRepository.save(any(Category.class)))
+                .willReturn(Mono.just(Category.builder()
+                        .description(testString).build()));
+
+        // we don't change anything really...
+        Mono<Category> categoryMonoToPatch = Mono.just(Category.builder()
+                .description(testString).build());
+
+        webTestClient.patch()
+                .uri(CategoryController.BASE_URL + "/someId")
+                .body(categoryMonoToPatch, Category.class)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        /*
+        Assertions.assertThrows(NumberFormatException.class, () -> {
+            verify(categoryRepository).save(any());
+        });
+        */
+        verify(categoryRepository, never()).save(any());
 
     }
 

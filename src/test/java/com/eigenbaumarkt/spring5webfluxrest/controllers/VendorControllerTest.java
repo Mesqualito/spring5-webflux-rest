@@ -1,14 +1,18 @@
 package com.eigenbaumarkt.spring5webfluxrest.controllers;
 
+import com.eigenbaumarkt.spring5webfluxrest.domain.Category;
 import com.eigenbaumarkt.spring5webfluxrest.domain.Vendor;
 import com.eigenbaumarkt.spring5webfluxrest.repositories.VendorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
+import org.reactivestreams.Publisher;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static org.mockito.ArgumentMatchers.any;
 
 class VendorControllerTest {
 
@@ -46,5 +50,21 @@ class VendorControllerTest {
                 .uri(VendorController.BASE_URL + "/someId")
                 .exchange()
                 .expectBody(Vendor.class);
+    }
+
+    @Test
+    void testCreateNewVendor() {
+        BDDMockito.given(vendorRepository.saveAll(any(Publisher.class)))
+                .willReturn(Flux.just(Category.builder().build()));
+
+        Mono<Vendor> vendorMonoToSave = Mono.just(Vendor.builder()
+        .firstName("Jedini").lastName("Trgovac").build());
+
+        webTestClient.post()
+                .uri(VendorController.BASE_URL)
+                .body(vendorMonoToSave, Vendor.class)
+                .exchange()
+                .expectStatus()
+                .isCreated();
     }
 }

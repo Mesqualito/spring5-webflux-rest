@@ -2,6 +2,7 @@ package com.eigenbaumarkt.spring5webfluxrest.controllers;
 
 import com.eigenbaumarkt.spring5webfluxrest.domain.Vendor;
 import com.eigenbaumarkt.spring5webfluxrest.repositories.VendorRepository;
+import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -25,4 +26,10 @@ public class VendorController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     Mono<Vendor> listVendorById(@PathVariable String id) { return vendorRepository.findById(id); }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    Mono<Void> createVendor(@RequestBody Publisher<Vendor> vendorStream) {
+        return vendorRepository.saveAll(vendorStream).then();
+    }
 }

@@ -54,6 +54,7 @@ public class CategoryController {
 
         Category foundCategory = categoryRepository.findById(id).block();
 
+        // TODO: category.getDescription() will blow up on null
         if (!foundCategory.getDescription().equals(category.getDescription())) {
 
             foundCategory.setDescription(category.getDescription());

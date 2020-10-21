@@ -125,7 +125,7 @@ class CategoryControllerTest {
     }
 
     @Test
-    void testPatchCategoryNoChanges() {
+    void testPatchCategoryWithoutChanges() {
 
         final String testString = "The description will stay the same like the id!";
 
@@ -135,8 +135,7 @@ class CategoryControllerTest {
                 .willReturn(Mono.just(Category.builder().description(testString).build()));
 
         given(categoryRepository.save(any(Category.class)))
-                .willReturn(Mono.just(Category.builder()
-                        .description(testString).build()));
+                .willReturn(Mono.just(Category.builder().build()));
 
         // we don't change anything really...
         Mono<Category> categoryMonoToPatch = Mono.just(Category.builder()

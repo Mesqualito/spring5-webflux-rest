@@ -96,8 +96,7 @@ class VendorControllerTest {
                         .firstName("Malformed").lastName("Name").build()));
 
         given(vendorRepository.save(any(Vendor.class)))
-                .willReturn(Mono.just(Vendor.builder()
-                        .firstName("Malformed").lastName("Name").build()));
+                .willReturn(Mono.just(Vendor.builder().build()));
 
         Mono<Vendor> vendorMonoToPatch = Mono.just(Vendor.builder()
                 .firstName("Klaus").lastName("Aftermath").build());
@@ -113,7 +112,7 @@ class VendorControllerTest {
     }
 
     @Test
-    void testPatchVendorNoChanges() {
+    void testPatchVendorWithoutChanges() {
 
         final String testFirstName = "Jack";
         final String testLastName = "Outbox";
@@ -125,10 +124,7 @@ class VendorControllerTest {
                         .build()));
 
         given(vendorRepository.save(any(Vendor.class)))
-                .willReturn(Mono.just(Vendor.builder()
-                        .firstName(testFirstName)
-                        .lastName(testLastName)
-                        .build()));
+                .willReturn(Mono.just(Vendor.builder().build()));
 
         Mono<Vendor> vendorMonoToPatch = Mono.just(Vendor.builder()
                 .firstName(testFirstName)

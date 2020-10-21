@@ -47,6 +47,7 @@ public class VendorController {
 
         Vendor foundVendor = vendorRepository.findById(id).block();
 
+        // TODO: vendor.getFirstName() or vendor.getLastName() will blow up on null
         if( !foundVendor.getFirstName().equals(vendor.getFirstName()) ||
                 !foundVendor.getLastName().equals(vendor.getLastName()) ) {
 
@@ -56,8 +57,8 @@ public class VendorController {
             if (!foundVendor.getLastName().equals(vendor.getLastName())) {
                 foundVendor.setLastName(vendor.getLastName());
             }
-            vendorRepository.save(foundVendor);
 
+            return vendorRepository.save(foundVendor);
         }
 
         return Mono.just(foundVendor);
